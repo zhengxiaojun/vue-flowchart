@@ -1,26 +1,36 @@
 <template>
 	<div class="toolbar">
-		<button @click="addNode">添加节点</button>
-		<button @click="alignNodes">对齐节点</button>
-		<button @click="undo">撤销</button>
-		<button @click="redo">重做</button>
-		<button @click="loadCanvas">读取画布</button>
-		<button @click="saveCanvas">保存画布</button>
-		<button @click="centerGraph">居中画布</button>
-		<button @click="clearGraph">清空画布</button>
+		<!-- <el-button type="primary" @click="addNode">添加节点</el-button> -->
+		<!-- <el-button type="primary" @click="alignNodes">对齐节点</el-button> -->
+		<!-- <el-button type="primary" @click="undo" :disabled="!canUndo">撤销</el-button> -->
+		<!-- <el-button type="primary" @click="redo" :disabled="!canRedo">重做</el-button> -->
+		<el-button type="primary" @click="loadCanvas">读取数据</el-button>
+		<!-- <el-button type="primary" @click="saveCanvas">保存画布</el-button> -->
+		<el-button type="primary" @click="centerGraph">居中画布</el-button>
+		<el-button type="primary" @click="clearGraph">清空画布</el-button>
 	</div>
 </template>
 
 <script>
 	export default {
 		name: "GraphToolbar",
+		props: {
+			canUndo: {
+				type: Boolean,
+				default: false
+			},
+			canRedo: {
+				type: Boolean,
+				default: false
+			}
+		},
 		methods: {
 			addNode() {
 				this.$emit("add-node");
 			},
 			alignNodes() {
-                this.$emit("align-nodes");
-            },
+				this.$emit("align-nodes");
+			},
 			undo() {
 				this.$emit("undo");
 			},

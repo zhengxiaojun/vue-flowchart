@@ -22,15 +22,13 @@ html {
 }
 
 #minimap {
-	position: absolute;
-	/* 使小地图绝对定位 */
-	bottom: 10px;
-	right: 10px;
-	width: 150px;
-	height: 100px;
-	border: 1px solid #000;
-	background-color: rgba(0, 0, 0, 0.1);
-	z-index: 9999;
+  position: absolute;
+  bottom: 80px;
+  right: 10px;
+  border: 1px solid #ccc;
+  background-color: #fff;
+  overflow: hidden;
+  box-sizing: border-box;
 }
 
 .toolbar {
@@ -41,17 +39,6 @@ html {
 	gap: 10px;
 	width: fit-content;
 	/* 确保宽度适应内容 */
-}
-
-.toolbar button {
-	padding: 5px 10px;
-	border: 1px solid #ccc;
-	background: #e0e0e0;
-	cursor: pointer;
-}
-
-.toolbar button:hover {
-	background: #d5d5d5;
 }
 
 .canvas-container {
@@ -111,4 +98,8 @@ html {
 	stroke: #faad14;
 	stroke-width: 1;
 	stroke-dasharray: 5, 5;
+}
+
+.x6-widget-minimap-viewport {
+  transform: translateX(-10%); /* 精确居中 */
 }

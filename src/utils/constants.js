@@ -83,15 +83,37 @@ export const DEFAULT_NODE_ATTRS = {
 
 export const DEFAULT_EDGE_ATTRS = {
 	line: {
-		stroke: "#1890ff",
-		strokeWidth: 2,
+		stroke: "#070707", // #1890ff
+		strokeWidth: 1,
 		// strokeDasharray: "5,5",
 		targetMarker: {
-			name: "classic",
-			size: 6
-		}
+			name: "classic", // 终点箭头样式
+			size: 8, // 箭头大小
+			fill: '#FF0000', // 箭头填充颜色
+		},
 	}
 };
+
+export const DEFAULT_TOOL_ATTRS = [
+	// {
+	// 	name: 'segments', // 用于调整边的中间点
+	// },
+	// {
+	// 	name: 'source-arrowhead', // 用于拖动起点
+	// },
+	{
+		name: 'target-arrowhead', // 用于拖动终点
+		args: {
+			attrs: {
+				d: 'M -3 -4 3 0 -3 4 Z',
+				// fill: '#333',
+				// stroke: '#fff',
+				'stroke-width': 0,
+				// cursor: 'move'
+			},
+		},
+	},
+];
 
 export const DEFAULT_HIGHLIGHT = {
 	magnetAvailable: {
@@ -109,21 +131,10 @@ export const DEFAULT_HIGHLIGHT = {
 
 export const DEFAULT_SCROLLER = {
 	enabled: true, // 启用滚动
+	pannable: true,
 	pageVisible: true, // 画布边界可见
 	pageBreak: true, // 显示页面分隔线
 	autoResize: true, // 自动调整大小
-	padding: 10, // 设置边距
-	minimap: {
-		enabled: true, // 启用小地图
-		container: document.createElement('div'), // 创建容器
-		width: 150, // 小地图的宽度
-		height: 150, // 小地图的高度
-		scaleFactor: 0.1, // 缩放比例
-		viewportStyle: { // 设置视口样式
-			border: '1px solid #000',
-			backgroundColor: 'rgba(0, 0, 0, 0.1)',
-		}
-	}
 }
 
 export const DEFAULT_PANNING = {
@@ -134,7 +145,7 @@ export const DEFAULT_PANNING = {
 export const DEFAULT_MOUSEWHEEL = {
 	enabled: true, // 启用鼠标滚轮缩放
 	zoomAtMousePosition: true, // 以鼠标位置为中心缩放
-	modifiers: ['ctrl'] // 缩放时需要按住 Ctrl 键（可以去掉以不需要修饰键）
+	// modifiers: ['ctrl'] // 缩放时需要按住 Ctrl 键（可以去掉以不需要修饰键）
 }
 
 export const DEFAULT_SNAPLINE = {

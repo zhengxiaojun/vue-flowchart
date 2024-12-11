@@ -16,5 +16,4 @@
 </script>
 
 <style>
-	@import "./styles.css";
 </style>
