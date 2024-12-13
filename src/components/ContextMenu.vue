@@ -9,11 +9,17 @@
       boxShadow: '2px 2px 10px rgba(0, 0, 0, 0.1)',
     }" id="contextMenu" class="context-menu">
 		<ul>
-			<li @click="addNode"><i class="el-icon-plus"></i> 添 加</li>
-			<!-- <li @click="copyNode"><i class="el-icon-document-copy"></i> 复 制</li> -->
-			<!-- <li @click="editNode"><i class="el-icon-edit"></i> 编 辑</li> -->
-			<li @click="deleteNode"><i class="el-icon-delete"></i> 删 除</li>
-			<li @click="executeNode"><i class="el-icon-s-tools"></i> 执 行</li>
+			<li @click="addNode"><i class="el-icon-plus"></i> 添加节点 </li>
+			<!-- <li @click="copyNode"><i class="el-icon-document-copy"></i> 复制节点 </li> -->
+			<li @click="editNode"><i class="el-icon-edit"></i> 编辑节点 </li>
+			<li @click="deleteNode"><i class="el-icon-delete"></i> 删除节点 </li>
+			<li @click="executeNode"><i class="el-icon-video-play"></i> 执行节点 </li>
+			<hr />
+			<li v-permission="permission.save" @click="saveCanvas"><i class="el-icon-document"></i> 保存画布 </li>
+			<li @click="loadCanvas"><i class="el-icon-folder-opened"></i> 读取画布 </li>
+			<li @click="centerGraph"><i class="el-icon-position"></i> 居中画布 </li>
+			<li @click="fullScreen"><i class="el-icon-full-screen"></i> 全屏画布 </li>
+			<li @click="clearGraph"><i class="el-icon-delete"></i> 清空画布 </li>
 		</ul>
 	</div>
 </template>
@@ -23,6 +29,13 @@
 		props: {
 			showMenu: Boolean,
 			menuStyle: Object
+		},
+		data() {
+			return {
+				permission: {
+					save: ['admin', 'business:chain:save'],
+				},
+			};
 		},
 		emits: ['addNode', 'copyNode', 'editNode', 'deleteNode', 'executeNode'],
 		methods: {
@@ -41,6 +54,21 @@
 			executeNode() {
 				this.$emit('executeNode');
 			},
+			saveCanvas() {
+				this.$emit('saveCanvas');
+			},
+			loadCanvas() {
+				this.$emit('loadCanvas');
+			},
+			centerGraph() {
+				this.$emit('centerGraph');
+			},
+			clearGraph() {
+				this.$emit('clearGraph');
+			},
+			fullScreen() {
+				this.$emit('toggleFullscreen');
+			}
 		},
 	};
 </script>

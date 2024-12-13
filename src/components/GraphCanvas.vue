@@ -8,17 +8,18 @@
 
 		<!-- 右键菜单 -->
 		<ContextMenu :showMenu="showContextMenu" :menuStyle="contextMenuPosition"
-			@addNode="addNodeAtContextMenuPosition" @copyNode="copyNode" @editNode="editNode"
-			@deleteNode="deleteNode" />
+			@addNode="addNodeAtContextMenuPosition" @copyNode="copyNode" @editNode="editNode" @deleteNode="deleteNode"
+			@saveCanvas="saveCanvas" @loadCanvas="loadCanvas" @centerGraph="centerGraph" @clearGraph="clearGraph"
+			@toggleFullscreen="toggleFullscreen" />
 
 		<!-- 删除连接线按钮 -->
 		<el-button size="medium" v-if="showDeleteEdgeButton" :style="deleteEdgeButtonStyle" @click="deleteEdge"
 			class="delete-edge-btn el-icon-delete" />
 
 		<!-- 工具按钮 -->
-		<GraphToolbar :graph="graph" @add-node="addNode" @align-nodes="alignNodes" @undo="undo" @redo="redo"
+		<!-- <GraphToolbar :graph="graph" @add-node="addNode" @align-nodes="alignNodes" @undo="undo" @redo="redo"
 			@save-canvas="saveCanvas" @load-canvas="loadCanvas" @center-graph="centerGraph" @clear-graph="clearGraph"
-			:can-undo="canUndo" :can-redo="canRedo" />
+			:can-undo="canUndo" :can-redo="canRedo" /> -->
 
 		<!-- 编辑节点 -->
 		<el-drawer :visible.sync="editDrawerVisible" direction="rtl">
@@ -40,7 +41,6 @@
 </template>
 
 <script>
-	import GraphToolbar from "./GraphToolbar";
 	import ContextMenu from "./ContextMenu";
 	import {
 		Graph
@@ -82,7 +82,6 @@
 	export default {
 		name: "GraphCanvas",
 		components: {
-			GraphToolbar,
 			ContextMenu
 		},
 		data() {
@@ -265,7 +264,9 @@
 					}) => this.handleNodeClick(node), // 监听节点单击事件
 					"node:dblclick": ({
 						node
-					}) => this.handleDoubleClick(node), // 监听节点双击事件
+					}) => {
+						this.handelNodeDblClick(node);
+					}, // 双击节点事件
 					"node:mouseenter": ({
 						node
 					}) => this.togglePortVisibility(node, true), // 鼠标移入节点时显示端口
@@ -307,6 +308,7 @@
 				const data = this.graph.toJSON();
 				localStorage.setItem("canvasData", JSON.stringify(data));
 				console.log("Canvas data saved to local storage.");
+				this.closeContextMenu();
 			},
 			// 读取画布
 			loadCanvas() {
@@ -316,6 +318,7 @@
 					this.centerGraph();
 					this.graph.trigger('graph:updated'); // 触发更新
 					console.log("Canvas data loaded from local storage.");
+					this.closeContextMenu();
 				} else {
 					console.log("No canvas data found in local storage.");
 				}
@@ -323,10 +326,12 @@
 			// 居中画布
 			centerGraph() {
 				this.graph.centerContent();
+				this.closeContextMenu();
 			},
 			// 清空画布
 			clearGraph() {
 				this.graph.clearCells();
+				this.closeContextMenu();
 			},
 			// 右键菜单-添加节点功能
 			addNodeAtContextMenuPosition() {
@@ -337,10 +342,10 @@
 				// 将页面坐标转换为画布坐标
 				const point = this.graph.clientToLocal({
 					x: left,
-					y: top + 50
+					y: top
 				});
 				this.addNode(point.x, point.y); // 使用画布坐标
-				this.showContextMenu = false;
+				this.closeContextMenu();
 			},
 			// 添加节点
 			addNode(x = 200, y = 200) {
@@ -420,27 +425,29 @@
 			async editNode() {
 				try {
 					if (!this.selectedNode) throw new Error("请选择一个节点进行操作");
-					console.log(this.selectedNode);
-					this.$prompt('请输入节点文本', '提示', {
-						confirmButtonText: '确定',
-						cancelButtonText: '取消',
-						inputPattern: /.+/,
-						inputErrorMessage: '节点文本不能为空'
-					}).then(({
-						value
-					}) => {
-						this.selectedNode.data.attr("label/text", value);
-						this.selectedNode.data.attr("text/text", value);
-						this.$message({
-							type: 'success',
-							message: '节点文本已更新: ' + value
-						});
-					}).catch(() => {
-						this.$message({
-							type: 'info',
-							message: '取消输入'
-						});
-					});
+					// console.log(this.selectedNode);
+					// this.$prompt('请输入节点文本', '提示', {
+					// 	confirmButtonText: '确定',
+					// 	cancelButtonText: '取消',
+					// 	inputPattern: /.+/,
+					// 	inputErrorMessage: '节点文本不能为空'
+					// }).then(({
+					// 	value
+					// }) => {
+					// 	this.selectedNode.data.attr("label/text", value);
+					// 	this.selectedNode.data.attr("text/text", value);
+					// 	this.$message({
+					// 		type: 'success',
+					// 		message: '节点文本已更新: ' + value
+					// 	});
+					// }).catch(() => {
+					// 	this.$message({
+					// 		type: 'info',
+					// 		message: '取消输入'
+					// 	});
+					// });
+
+					this.editDrawerVisible = true;
 				} catch (error) {
 					this.$message({
 						message: error.message,
@@ -477,21 +484,29 @@
 					clientX,
 					clientY
 				} = ele;
-				this.selectedNode = node;
+
+				// 获取当前的画布变换状态（偏移和缩放）
+				const canvasRect = this.$refs.canvas.getBoundingClientRect();
 				this.contextMenuPosition = {
-					top: clientY,
-					left: clientX
+					top: clientY - canvasRect.top,
+					left: clientX - canvasRect.left + 50
 				};
+				if (node != null) {
+					this.selectedNode = node;
+				}
 				this.showContextMenu = true;
 			},
 			// 关闭右键菜单
 			closeContextMenu() {
+				this.selectedNode = null;
+				this.selectedEdge = null;
 				this.showContextMenu = false;
 				this.showDeleteEdgeButton = false;
 			},
 			// 单击节点事件
 			handleNodeClick(node) {
 				this.selectedNode = node; // 保存选中的节点
+				this.togglePortVisibility(node, false); // 隐藏端口
 				// const nodeData = node.getData(); // 获取节点的附加数据
 				// const nodeLabel = node.getLabel(); // 获取节点的标签
 				// this.$message({
@@ -504,11 +519,30 @@
 				// node.attr("body/strokeWidth", 3); // 加粗边框
 			},
 			// 双击节点事件
-			handleDoubleClick(node) {
-				this.selectedNode = node;
-				this.editForm.name = node.getLabel();
-				this.editForm.data = JSON.stringify(node.getData(), null, 2);
-				this.editDrawerVisible = true;
+			handelNodeDblClick(node) {
+				this.selectedNode = node; // 保存选中的节点
+				// this.editDrawerVisible = true; // 显示编辑
+				this.$prompt('请输入节点文本', '提示', {
+					confirmButtonText: '确定',
+					cancelButtonText: '取消',
+					inputPattern: /.+/,
+					inputErrorMessage: '节点文本不能为空'
+				}).then(({
+					value
+				}) => {
+					this.selectedNode.attr("label/text", value);
+					this.selectedNode.attr("text/text", value);
+					this.$message({
+						type: 'success',
+						message: '节点文本已更新: ' + value
+					});
+				}).catch(() => {
+					this.$message({
+						type: 'info',
+						message: '取消输入'
+					});
+				});
+				// window.getSelection().removeAllRanges(); // 清除选中的文本
 			},
 			// 确认更新
 			confirmEdit() {
@@ -532,15 +566,9 @@
 			},
 			// 连接线点击
 			handleEdgeClick({
-				edge,
-				e
+				edge
 			}) {
 				this.selectedEdge = edge;
-				this.showDeleteEdgeButton = true;
-				this.deleteEdgeButtonStyle = {
-					top: `${e.clientY}px`,
-					left: `${e.clientX}px`
-				};
 			},
 			// 删除连接线
 			deleteEdge() {
@@ -575,6 +603,18 @@
 						console.log("未选中任何节点或连接线");
 					}
 				}
+			},
+			// 切换全屏
+			toggleFullscreen() {
+				const canvasContainer = this.$refs.canvas.parentNode; // 获取画布的父容器
+				if (!document.fullscreenElement) {
+					canvasContainer.requestFullscreen().catch(err => {
+						console.error(`Error attempting to enable full-screen mode: ${err.message}`);
+					});
+				} else {
+					document.exitFullscreen();
+				}
+				this.closeContextMenu();
 			}
 		}
 	};
